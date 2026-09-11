@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevSuite — All-in-One Python Web Suite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --bg-dark: #080c16;
+      --bg-sidebar: #0f172a;
+      --bg-card: rgba(15, 23, 42, 0.75);
+      --border-color: rgba(255, 255, 255, 0.1);
+      --border-glow: rgba(99, 102, 241, 0.35);
+      --text-main: #f3f4f6;
+      --text-muted: #94a3b8;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-cyan: #06b6d4;
+      --accent-pink: #ec4899;
+      --accent-purple: #8b5cf6;
+      --gradient-brand: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* Sidebar Navigation */
+    aside.sidebar {
+      width: 260px;
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-color);
+      padding: 1.75rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: fixed;
+      top: 0; bottom: 0; left: 0;
+      z-index: 100;
+    }
+
+    .sidebar-brand {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 2rem;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .nav-item {
+      padding: 0.85rem 1rem;
+      border-radius: 12px;
+      color: var(--text-muted);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: all 0.25s ease;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+
+    .nav-item.active {
+      background: rgba(99, 102, 241, 0.15);
+      color: #fff;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+    }
+
+    .nav-item.active i { color: var(--accent-cyan); }
+
+    /* Main Workspace Area */
+    main.content {
+      margin-left: 260px;
+      flex: 1;
+      padding: 2rem 2.5rem;
+      max-width: 1100px;
+    }
+
+    @media (max-width: 768px) {
+      body { flex-direction: column; }
+      aside.sidebar { width: 100%; position: relative; border-right: none; border-bottom: 1px solid var(--border-color); }
+      main.content { margin-left: 0; padding: 1.5rem; }
+    }
+
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; animation: fadeIn 0.3s ease; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Common Card Styles */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(16px);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      margin-bottom: 2rem;
+    }
+
+    .card-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .form-input {
+      width: 100%;
+      background: rgba(10, 16, 30, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 0.9rem 1rem 0.9rem 2.75rem;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.25s ease;
+    }
+
+    .form-input:focus {
+      border-color: var(--accent-indigo);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+    }
+
+    .input-group { position: relative; display: flex; align-items: center; }
+    .input-icon { position: absolute; left: 1rem; color: var(--text-muted); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 0.9rem 1.75rem;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-icon {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.55rem 0.8rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-icon:hover { background: rgba(255,255,255,0.18); color: #fff; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th { padding: 0.85rem 1rem; font-size: 0.82rem; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border-color); }
+    td { padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.95rem; }
+
+    .toast {
+      position: fixed;
+      bottom: 2rem; right: 2rem;
+      background: #1f2937;
+      border: 1px solid var(--accent-indigo);
+      color: #fff;
+      padding: 0.85rem 1.25rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .toast.show { transform: translateY(0); opacity: 1; }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div>
+      <div class="sidebar-brand">
+        <i class="fa-solid fa-cubes-stacked"></i> DevSuite
+      </div>
+
+      <ul class="nav-list">
+        <li class="nav-item active" onclick="switchTab('url-shortener', this)">
+          <i class="fa-solid fa-link"></i> URL Shortener
+        </li>
+        <li class="nav-item" onclick="switchTab('password-manager', this)">
+          <i class="fa-solid fa-shield-halved"></i> Password Manager
+        </li>
+        <li class="nav-item" onclick="switchTab('file-organizer', this)">
+          <i class="fa-solid fa-folder-tree"></i> File Organizer
+        </li>
+        <li class="nav-item" onclick="switchTab('quiz-game', this)">
+          <i class="fa-solid fa-brain"></i> Quiz Game
+        </li>
+      </ul>
+    </div>
+
+    <div style="font-size: 0.8rem; color: var(--text-muted); text-align: center;">
+      Unified Master Hub v1.0
+    </div>
+  </aside>
+
+  <!-- Main Content Workspace -->
+  <main class="content">
+
+    <!-- 1. URL SHORTENER TAB -->
+    <div id="url-shortener" class="tab-pane active">
+      <header style="margin-bottom: 2rem;">
+        <h1 style="font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800;">URL Shortener & Analytics</h1>
+        <p style="color: var(--text-muted);">Shorten long links, generate QR codes, and track visitor clicks.</p>
+      </header>
+
+      <section class="card">
+        <div class="card-title">
+          <i class="fa-solid fa-bolt" style="color: var(--accent-indigo);"></i> Shorten a New URL
+        </div>
+        <form id="urlForm" style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="input-group">
+            <i class="fa-solid fa-globe input-icon"></i>
+            <input type="url" id="urlInput" class="form-input" placeholder="https://example.com/long-link" required>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr auto; gap: 1rem;">
+            <div class="input-group">
+              <i class="fa-solid fa-tag input-icon"></i>
+              <input type="text" id="aliasInput" class="form-input" placeholder="Custom Alias (Optional, e.g. my-link)">
+            </div>
+            <button type="submit" class="btn-primary">Shorten Link</button>
+          </div>
+        </form>
+
+        <div id="urlResultBox" style="display: none; margin-top: 1.5rem; background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); border-radius: 12px; padding: 1.25rem; align-items: center; justify-content: space-between;">
+          <div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Shortened Link:</div>
+            <a href="#" id="urlResultLink" target="_blank" style="color: var(--accent-cyan); font-weight: 700; font-family: 'Outfit'; font-size: 1.15rem;"></a>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn-icon" id="btnCopyShortUrl"><i class="fa-solid fa-copy"></i> Copy</button>
+            <button class="btn-icon" id="btnQrShortUrl"><i class="fa-solid fa-qrcode"></i> QR</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-title"><i class="fa-solid fa-chart-line" style="color: var(--accent-cyan);"></i> Link Analytics</div>
+        <table>
+          <thead>
+            <tr><th>Short Code</th><th>Original Destination</th><th>Clicks</th><th style="text-align: right;">Action</th></tr>
+          </thead>
+          <tbody id="urlTableBody">
+            <!-- Dynamically Loaded -->
+          </tbody>
+        </table>
+      </section>
+    </div>
+
+    <!-- 2. PASSWORD MANAGER TAB -->
+    <div id="password-manager" class="tab-pane">
+      <header style="margin-bottom: 2rem;">
+        <h1 style="font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800;">Password Vault</h1>
+        <p style="color: var(--text-muted);">Encrypted storage with password generator and strength analysis.</p>
+      </header>
+
+      <section class="card">
+        <div class="card-title"><i class="fa-solid fa-key" style="color: var(--accent-emerald);"></i> Store New Password</div>
+        <form id="passForm" style="display: flex; flex-direction: column; gap: 1rem;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="input-group">
+              <i class="fa-solid fa-user input-icon"></i>
+              <input type="text" id="passAccount" class="form-input" placeholder="Account Name (e.g. GitHub)" required>
+            </div>
+            <div class="input-group">
+              <i class="fa-solid fa-lock input-icon"></i>
+              <input type="password" id="passVal" class="form-input" placeholder="Password" required>
+            </div>
+          </div>
+          <div style="display: flex; gap: 1rem; align-items: center; background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 12px;">
+            <button type="button" class="btn-icon" id="btnGenPass"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate Strong Password</button>
+            <input type="range" id="passLen" min="8" max="32" value="16" style="accent-color: var(--accent-emerald);">
+            <span style="font-size: 0.85rem;">Length: <strong id="passLenTxt">16</strong></span>
+          </div>
+          <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, #059669 0%, #2563eb 100%);">Save Password</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <div class="card-title"><i class="fa-solid fa-vault" style="color: var(--accent-cyan);"></i> Stored Vault Accounts</div>
+        <div id="passVaultList"></div>
+      </section>
+    </div>
+
+    <!-- 3. FILE ORGANIZER TAB -->
+    <div id="file-organizer" class="tab-pane">
+      <header style="margin-bottom: 2rem;">
+        <h1 style="font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800;">Smart File Organizer</h1>
+        <p style="color: var(--text-muted);">Sort loose files into Images, Documents, Videos, Audio, and Archives.</p>
+      </header>
+
+      <section class="card">
+        <div class="card-title"><i class="fa-solid fa-folder-open" style="color: var(--accent-cyan);"></i> Select Folder Path</div>
+        <form id="orgForm" style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="input-group">
+            <i class="fa-solid fa-folder input-icon"></i>
+            <input type="text" id="orgDirInput" class="form-input" placeholder="Path (e.g. C:\Users\Name\Downloads)" required>
+          </div>
+          <div style="display: flex; gap: 1rem;">
+            <button type="button" class="btn-primary" id="btnOrgScan" style="background: rgba(255,255,255,0.08);">Scan Folder</button>
+            <button type="submit" class="btn-primary">Organize Files</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card" id="orgResultCard" style="display: none;">
+        <div class="card-title" style="justify-content: space-between;">
+          <span>Directory Inspection</span>
+          <span id="orgStatusBadge" style="font-size: 0.9rem;"></span>
+        </div>
+        <div id="orgCategoryGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;"></div>
+      </section>
+    </div>
+
+    <!-- 4. QUIZ GAME TAB -->
+    <div id="quiz-game" class="tab-pane">
+      <header style="margin-bottom: 2rem;">
+        <h1 style="font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800;">QuizMaster Challenge</h1>
+        <p style="color: var(--text-muted);">Test your knowledge with multiple choice Python questions.</p>
+      </header>
+
+      <section class="card">
+        <div id="quizContent">
+          <!-- Dynamically Loaded Quiz -->
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <div class="toast" id="toast"><span id="toastMsg">Done</span></div>
+
+  <script>
+    function switchTab(tabId, elem) {
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      elem.classList.add('active');
+      
+      if (tabId === 'url-shortener') loadUrlStats();
+      if (tabId === 'password-manager') loadVaultAccounts();
+      if (tabId === 'quiz-game') loadQuiz();
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // URL Shortener JS
+    document.getElementById('urlForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const res = await fetch('/api/shorten', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: document.getElementById('urlInput').value, custom_code: document.getElementById('aliasInput').value })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        document.getElementById('urlResultLink').href = data.short_url;
+        document.getElementById('urlResultLink').innerText = data.short_url;
+        document.getElementById('urlResultBox').style.display = 'flex';
+        showToast('Link shortened!');
+        loadUrlStats();
+      } else { showToast(data.error || 'Error shortening URL'); }
+    });
+
+    async function loadUrlStats() {
+      const res = await fetch('/api/stats');
+      const data = await res.json();
+      if (res.ok) {
+        document.getElementById('urlTableBody').innerHTML = data.links.map(item => `
+          <tr>
+            <td><a href="/${item.code}" target="_blank" style="color: var(--accent-cyan); font-weight: 600;">/${item.code}</a></td>
+            <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.original_url}</td>
+            <td><span style="background: rgba(6,182,212,0.15); color: #22d3ee; padding: 0.2rem 0.6rem; border-radius: 999px; font-weight: 600;">${item.clicks} clicks</span></td>
+            <td style="text-align: right;"><button class="btn-icon" onclick="navigator.clipboard.writeText(window.location.origin + '/${item.code}'); showToast('Copied!');"><i class="fa-solid fa-copy"></i></button></td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    // Password Vault JS
+    const passLen = document.getElementById('passLen');
+    passLen.addEventListener('input', () => document.getElementById('passLenTxt').innerText = passLen.value);
+
+    document.getElementById('btnGenPass').addEventListener('click', async () => {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ length: parseInt(passLen.value) })
+      });
+      const data = await res.json();
+      if (data.password) document.getElementById('passVal').value = data.password;
+    });
+
+    document.getElementById('passForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const res = await fetch('/api/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ account: document.getElementById('passAccount').value, password: document.getElementById('passVal').value })
+      });
+      if (res.ok) { showToast('Password saved!'); loadVaultAccounts(); }
+    });
+
+    async function loadVaultAccounts() {
+      const res = await fetch('/api/accounts');
+      const data = await res.json();
+      if (res.ok) {
+        document.getElementById('passVaultList').innerHTML = data.accounts.map(acc => `
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 12px; margin-bottom: 0.5rem;">
+            <div><strong>${acc}</strong></div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn-icon" onclick="copyPass('${acc}')"><i class="fa-solid fa-copy"></i> Copy Password</button>
+            </div>
+          </div>
+        `).join('') || '<p style="color: var(--text-muted);">No accounts stored.</p>';
+      }
+    }
+
+    async function copyPass(acc) {
+      const res = await fetch('/api/decrypt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ account: acc })
+      });
+      const data = await res.json();
+      if (data.password) { navigator.clipboard.writeText(data.password); showToast(`Copied ${acc} password!`); }
+    }
+
+    // File Organizer JS
+    document.getElementById('btnOrgScan').addEventListener('click', async () => {
+      const dir = document.getElementById('orgDirInput').value.trim();
+      const res = await fetch('/api/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ directory: dir })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        document.getElementById('orgResultCard').style.display = 'block';
+        document.getElementById('orgStatusBadge').innerHTML = data.unorganized_count > 0 
+          ? `<span style="color: #22d3ee;">⚡ ${data.unorganized_count} loose files ready to organize</span>`
+          : `<span style="color: #34d399;">✅ Folder is fully organized</span>`;
+        
+        document.getElementById('orgCategoryGrid').innerHTML = Object.entries(data.categories).map(([cat, count]) => `
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 1rem; border-radius: 12px;">
+            <div style="font-weight: 700;">${cat}</div>
+            <div style="color: var(--text-muted); font-size: 0.85rem;">${count} file(s)</div>
+          </div>
+        `).join('');
+      }
+    });
+
+    document.getElementById('orgForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const dir = document.getElementById('orgDirInput').value.trim();
+      const res = await fetch('/api/organize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ directory: dir })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(`Organized ${data.moved_count} files!`);
+        document.getElementById('btnOrgScan').click();
+      }
+    });
+
+    // Quiz Game JS
+    async function loadQuiz() {
+      document.getElementById('quizContent').innerHTML = `
+        <div style="text-align: center; padding: 2rem;">
+          <h2 style="font-family: 'Outfit'; font-size: 1.8rem; margin-bottom: 1rem;">Python Knowledge Challenge</h2>
+          <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Launch the full interactive Quiz Game!</p>
+          <a href="http://127.0.0.1:5004" target="_blank" class="btn-primary" style="text-decoration: none;">
+            <i class="fa-solid fa-play"></i> Open Quiz Game App
+          </a>
+        </div>
+      `;
+    }
+
+    // Init
+    loadUrlStats();
+  </script>
+</body>
+</html>
